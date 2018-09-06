@@ -11,12 +11,16 @@ class Sugar
     @password = password
   end
 
-  def notify(*notifications)
-    request :post, '/notify', { notifications: notifications }.to_json
+  def experiment(*events)
+    request :post, '/experiment', { experiments: events }.to_json
   end
 
-  def announce(*announcements)
-    request :post, '/announce', { announcements: announcements }.to_json
+  def notify(*events)
+    request :post, '/notify', { notifications: events }.to_json
+  end
+
+  def announce(*events)
+    request :post, '/announce', { announcements: events }.to_json
   end
 
   private

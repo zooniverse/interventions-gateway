@@ -8,6 +8,10 @@ require_relative 'lib/credential'
 class Notification < OpenStruct
 end
 
+class SubjectQueue < OpenStruct
+end
+
+
 SUGAR = Sugar.new(ENV['SUGAR_HOST'], ENV['SUGAR_USERNAME'], ENV['SUGAR_PASSWORD'])
 
 # Main app
@@ -39,7 +43,7 @@ class App < Sinatra::Base
     notification = Notification.new(json)
 
     if @credential.accessible_project?(notification.project_id)
-      SUGAR.notify(notification)
+      SUGAR.experiment(notification)
     else
       halt 401
     end
@@ -53,5 +57,13 @@ class App < Sinatra::Base
   #   "workflow_id": "21"
   # }
   post '/subject_queues' do
+    json = JSON.parse(request.body.read.to_s)
+    notification = Notification.new(json)
+
+    if @credential.accessible_project?(notification.project_id)
+      SUGAR.experiment(notification)
+    else
+      halt 401
+    end
   end
 end
