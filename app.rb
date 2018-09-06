@@ -8,6 +8,8 @@ require_relative 'lib/credential'
 class Notification < OpenStruct
 end
 
+SUGAR = Sugar.new(ENV['SUGAR_HOST'], ENV['SUGAR_USERNAME'], ENV['SUGAR_PASSWORD'])
+
 # Main app
 class App < Sinatra::Base
   configure :production, :development do
@@ -15,7 +17,7 @@ class App < Sinatra::Base
   end
 
   before do
-    authorization = request.env["HTTP_AUTHORIZATION"]
+    authorization = request.env['HTTP_AUTHORIZATION']
     match = /\ABearer (.*)\Z/.match(authorization)
 
     if match
@@ -34,10 +36,10 @@ class App < Sinatra::Base
   # }
   post '/notifications' do
     json = JSON.parse(request.body.read.to_s)
-    event = Notification.new(json)
+    notification = Notification.new(json)
 
-    if @credential.accessible_project?(event.project_id)
-      'foo'
+    if @credential.accessible_project?(notification.project_id)
+      SUGAR.notify(notification)
     else
       halt 401
     end
