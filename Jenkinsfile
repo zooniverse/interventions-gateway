@@ -12,35 +12,35 @@ node {
         newImage.push()
     }
 
-    // if (BRANCH_NAME == 'master') {
-    //     stage('Update latest tag') {
-    //         newImage.push('latest')
-    //     }
+     if (BRANCH_NAME == 'master') {
+         stage('Update latest tag') {
+             newImage.push('latest')
+         }
 
-    //     stage('Deploy to Swarm') {
-    //         sh """
-    //             cd "/var/jenkins_home/jobs/Zooniverse GitHub/jobs/operations/branches/master/workspace" && \
-    //             ./hermes_wrapper.sh exec StandaloneAppsSwarm -- \
-    //                 docker stack deploy --prune \
-    //                 -c /opt/infrastructure/stacks/notifications-staging.yml \
-    //                 notifications-staging
-    //         """
-    //     }
-    // }
+         stage('Deploy to Swarm') {
+             sh """
+                 cd "/var/jenkins_home/jobs/Zooniverse GitHub/jobs/operations/branches/master/workspace" && \
+                 ./hermes_wrapper.sh exec StandaloneAppsSwarm -- \
+                     docker stack deploy --prune \
+                     -c /opt/infrastructure/stacks/notifications-gateway-staging.yml \
+                     notifications-gateway-staging
+             """
+         }
+     }
 
-    // if (BRANCH_NAME == 'production') {
-    //     stage('Update production tag') {
-    //         newImage.push('production')
-    //     }
+     if (BRANCH_NAME == 'production') {
+         stage('Update production tag') {
+             newImage.push('production')
+         }
 
-    //     stage('Deploy to Swarm') {
-    //         sh """
-    //             cd "/var/jenkins_home/jobs/Zooniverse GitHub/jobs/operations/branches/master/workspace" && \
-    //             ./hermes_wrapper.sh exec StandaloneAppsSwarm -- \
-    //                 docker stack deploy --prune \
-    //                 -c /opt/infrastructure/stacks/notifications.yml \
-    //                 notifications
-    //         """
-    //     }
-    // }
+         stage('Deploy to Swarm') {
+             sh """
+                 cd "/var/jenkins_home/jobs/Zooniverse GitHub/jobs/operations/branches/master/workspace" && \
+                 ./hermes_wrapper.sh exec StandaloneAppsSwarm -- \
+                     docker stack deploy --prune \
+                     -c /opt/infrastructure/stacks/notifications-gateway.yml \
+                     notifications-gateway
+             """
+         }
+     }
 }
