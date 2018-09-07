@@ -3,6 +3,14 @@
 This is a gateway service which allows project owners to send messages to the
 frontend via Sugar.
 
+## Operations
+
+This service automatically deploys the `master` branch to https://notifications-gateway-staging.zooniverse.org
+
+The production branch gets deployed to https://notifications-gateway.zooniverse.org
+
+## Usage
+
 All requests need to be authenticated. Authentication is done with an OAuth
 bearer token which can be gotten from Panoptes. You will probably want to create
 an OAuth application at https://panoptes.zooniverse.org/oauth/applications
@@ -23,7 +31,7 @@ owner or collaborator on, you will get an HTTP 403 error status.
 
 This service exposes the following API endpoints:
 
-## `POST /notifications`
+### `POST /notifications`
 
 This lets you send a message to a user, if they are currently online. The
 message will be shown once they submit whatever classification they are
@@ -40,7 +48,7 @@ not be shown.
 }
 ```
 
-## `POST /subject_queues`
+### `POST /subject_queues`
 
 This lets you prepend subjects into the user's queue. This queue is only
 maintained in the browser, so if the user reloads or closes their browser tab,
