@@ -32,6 +32,10 @@ class App < Sinatra::Base
     end
   end
 
+  before do
+    content_type 'application/json'
+  end
+
   # {
   #   "type": "notification",
   #   "project_id": "5733",
@@ -44,6 +48,7 @@ class App < Sinatra::Base
 
     if @credential.accessible_project?(notification.project_id)
       SUGAR.experiment(notification.to_h)
+      {status: "ok"}.to_json
     else
       halt 401
     end

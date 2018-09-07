@@ -57,7 +57,7 @@ class Credential
   end
 
   def panoptes_client_env
-    'production'
+    ENV["RACK_ENV"]
   end
 
   def expires_at
