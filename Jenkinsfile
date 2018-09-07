@@ -3,7 +3,7 @@
 node {
     checkout scm
 
-    def dockerRepoName = 'zooniverse/notifications'
+    def dockerRepoName = 'zooniverse/notifications-gateway'
     def dockerImageName = "${dockerRepoName}:${BRANCH_NAME}"
     def newImage = null
 
