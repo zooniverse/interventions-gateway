@@ -48,9 +48,9 @@ class App < Sinatra::Base
 
     if @credential.accessible_project?(notification.project_id)
       SUGAR.experiment(notification.to_h)
-      {status: "ok"}.to_json
+      {status: 'ok'}.to_json
     else
-      halt 401
+      halt 403, {status: 'error', error: 'You do not have access to this project'}.to_json
     end
   end
 
