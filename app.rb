@@ -43,7 +43,7 @@ class App < Sinatra::Base
     notification = Notification.new(json)
 
     if @credential.accessible_project?(notification.project_id)
-      SUGAR.experiment(notification)
+      SUGAR.experiment(notification.to_h)
     else
       halt 401
     end
@@ -61,7 +61,7 @@ class App < Sinatra::Base
     notification = Notification.new(json)
 
     if @credential.accessible_project?(notification.project_id)
-      SUGAR.experiment(notification)
+      SUGAR.experiment(notification.to_h)
     else
       halt 401
     end
