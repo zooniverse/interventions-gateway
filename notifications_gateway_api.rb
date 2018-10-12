@@ -12,7 +12,11 @@ end
 class SubjectQueue < OpenStruct
 end
 
-SUGAR = Sugar.new(ENV['SUGAR_HOST'], ENV['SUGAR_USERNAME'], ENV['SUGAR_PASSWORD'])
+SUGAR = Sugar.new(
+  ENV['SUGAR_HOST'],
+  ENV['SUGAR_USERNAME'],
+  ENV['SUGAR_PASSWORD']
+)
 
 class NotificationsGatewayApi < Sinatra::Base
   configure :production, :development do
@@ -35,11 +39,8 @@ class NotificationsGatewayApi < Sinatra::Base
     json = JSON.parse(request.body.read.to_s)
     notification = Notification.new(json)
 
-    if @credential.accessible_project?(notification.project_id)
+    authorize(notification) do
       SUGAR.experiment(notification.to_h)
-      {status: 'ok'}.to_json
-    else
-      halt 403, {status: 'error', error: 'You do not have access to this project'}.to_json
     end
   end
 
@@ -54,7 +55,7 @@ class NotificationsGatewayApi < Sinatra::Base
     json = JSON.parse(request.body.read.to_s)
     subject_queue_req = SubjectQueue.new(json)
 
-    authorize(subject_queue_req.project_id) do
+    authorize(subject_queue_req) do
       SUGAR.experiment(subject_queue_req.to_h)
     end
   end
@@ -70,7 +71,6 @@ class NotificationsGatewayApi < Sinatra::Base
     authorization = request.env['HTTP_AUTHORIZATION']
     match = /\ABearer (.*)\Z/.match(authorization)
 
-
     if match
       auth = match[1]
       @credential = Credential.new(auth)
@@ -79,11 +79,26 @@ class NotificationsGatewayApi < Sinatra::Base
     end
   end
 
-  def authorize(project_id)
-    if @credential.accessible_project?(project_id)
+  def authorize(request)
+    if @credential.accessible_project?(request.project_id)
       yield
+      success_response(request.user_id)
     else
-      halt 403
+      halt 403, missing_roles_message
     end
+  end
+
+  def success_response(user_id)
+    {
+      status: "ok",
+      message: "message sent to user_id: #{user_id}"
+    }.to_json
+  end
+
+  def missing_roles_message
+     @missing_roles_message ||= {
+      status: 'error',
+      error: 'You do not have access to this project'
+    }.to_json
   end
 end
