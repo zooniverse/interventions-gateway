@@ -12,11 +12,10 @@ end
 class SubjectQueue < OpenStruct
 end
 
-SUGAR = Sugar.new(
-  ENV['SUGAR_HOST'],
-  ENV['SUGAR_USERNAME'],
-  ENV['SUGAR_PASSWORD']
-)
+SUGAR_CHANNELS = {
+  "experiment" => :experiment,
+  "notification" => :notify
+}.freeze
 
 class NotificationsGatewayApi < Sinatra::Base
   configure :production, :development do
@@ -37,10 +36,17 @@ class NotificationsGatewayApi < Sinatra::Base
   # }
   post '/notifications' do
     json = JSON.parse(request.body.read.to_s)
+
+    channel_param = json.delete("channel")
+    sugar_method = SUGAR_CHANNELS[channel_param]
+    unless sugar_method
+      halt 422, missing_channel_param_message
+    end
+
     notification = Notification.new(json)
 
     authorize(notification) do
-      SUGAR.experiment(notification.to_h)
+      sugar_client.send(sugar_method, notification.to_h)
     end
   end
 
@@ -56,7 +62,7 @@ class NotificationsGatewayApi < Sinatra::Base
     subject_queue_req = SubjectQueue.new(json)
 
     authorize(subject_queue_req) do
-      SUGAR.experiment(subject_queue_req.to_h)
+      sugar_client.experiment(subject_queue_req.to_h)
     end
   end
 
@@ -66,6 +72,14 @@ class NotificationsGatewayApi < Sinatra::Base
   end
 
   private
+
+  def sugar_client
+    @sugar_client ||= Sugar.new(
+      ENV['SUGAR_HOST'],
+      ENV['SUGAR_USERNAME'],
+      ENV['SUGAR_PASSWORD']
+    )
+  end
 
   def setup_credentials
     authorization = request.env['HTTP_AUTHORIZATION']
@@ -96,9 +110,12 @@ class NotificationsGatewayApi < Sinatra::Base
   end
 
   def missing_roles_message
-     @missing_roles_message ||= {
-      status: 'error',
-      error: 'You do not have access to this project'
-    }.to_json
+     @missing_roles_message ||= 'You do not have access to this project'.freeze
+  end
+
+  def missing_channel_param_message
+     @missing_channel_param_message ||=
+      "Please provide a valid channel param " \
+      "values can be 'notification' or 'experiment'".freeze
   end
 end
