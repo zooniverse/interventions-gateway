@@ -31,6 +31,7 @@ class Credential
   end
 
   def accessible_project?(id)
+
     project_ids.include?(id)
   end
 
@@ -70,6 +71,17 @@ class Credential
   def fetch_accessible_projects
     puts "Loading accessible projects from Panoptes"
     result = client.panoptes.paginate('/projects', current_user_roles: OWNER_ROLES)
+
+    puts "done"
+    result
+  end
+
+  def fetch_accessible_project(project_id)
+    puts "Loading accessible project from Panoptes"
+    result = client.panoptes.paginate(
+      "/projects/#{project_id}",
+      current_user_roles: OWNER_ROLES
+    )
 
     puts "done"
     result
