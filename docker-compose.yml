@@ -1,6 +1,8 @@
 gateway_api:
   dockerfile: Dockerfile
   build: .
+  volumes:
+    - ./:/app
   ports:
     - "3000:3000"
   environment:
