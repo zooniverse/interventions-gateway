@@ -11,4 +11,8 @@ module RSpecMixin
   def app() NotificationsGatewayApi end
 end
 
-RSpec.configure { |c| c.include RSpecMixin }
+RSpec.configure do |config|
+  config.include RSpecMixin
+  config.filter_run focus: true
+  config.run_all_when_everything_filtered = true
+end
