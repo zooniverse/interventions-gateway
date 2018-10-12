@@ -77,3 +77,14 @@ maintained in the browser, so if the user reloads or closes their browser tab, t
     "workflow_id": "21"
 }
 ```
+
+## Development
+Install specified ruby version (see Dockerfile)
+1. `bundle install`
+0. `bundle exec rspec` or `rspec`
+
+To add new features
+
+1. Add specs and make them pass
+0. Commit the code with good commit messages
+0. Issue a pull request to start a discussion around the changes being included in the codebase
