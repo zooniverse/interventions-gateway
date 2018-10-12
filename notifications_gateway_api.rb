@@ -1,6 +1,5 @@
 require 'sinatra/base'
 require 'ostruct'
-require 'pry'
 
 require_relative 'lib/sugar'
 require_relative 'lib/credential'
@@ -11,11 +10,9 @@ end
 class SubjectQueue < OpenStruct
 end
 
+SUGAR ||= Sugar.new(ENV['SUGAR_HOST'], ENV['SUGAR_USERNAME'], ENV['SUGAR_PASSWORD'])
 
-SUGAR = Sugar.new(ENV['SUGAR_HOST'], ENV['SUGAR_USERNAME'], ENV['SUGAR_PASSWORD'])
-
-# Main app
-class App < Sinatra::Base
+class NotificationsGatewayApi < Sinatra::Base
   configure :production, :development do
     enable :logging
   end
