@@ -33,26 +33,40 @@ This service exposes the following API endpoints:
 
 ### `POST /notifications`
 
-This lets you send a message to a user, if they are currently online. The
-message will be shown once they submit whatever classification they are
-currently working on. If they never submit another classification after
-you call this API, or if they reload or close their browser, the message will
-not be shown.
+This lets you send a message to a user, if they are currently online. There are two channels that a message can be sent down:
+1. Experiment
+0. Notification
 
+**Please note: the behaviour of how the notification events are presented to the user is out of the control of this repo.** Please refer to  https://github.com/zooniverse/Panoptes-Front-End/ for specific details on these notification message handling.
+
+#### Notifications channel
+An experiment message will be shown once they submit whatever classification they are currently working on. If they never submit another classification after you call this API, or if they reload or close their browser, the message will not be shown.
 ```json
 {
+    "channel": "notification",
     "type": "notification",
     "project_id": "5733",
     "user_id": "6",
-    "message": "All of your contributions really help.”
+    "message": "All of your contributions really help."
+}
+```
+
+#### Experiment channel
+A notification message will be shown the the user in the client interface.
+```json
+{
+    "channel": "experiment",
+    "type": "notification",
+    "project_id": "5733",
+    "user_id": "6",
+    "message": "All of your contributions really help."
 }
 ```
 
 ### `POST /subject_queues`
 
 This lets you prepend subjects into the user's queue. This queue is only
-maintained in the browser, so if the user reloads or closes their browser tab,
-the subjects will disappear from their queue.
+maintained in the browser, so if the user reloads or closes their browser tab, the subjects will disappear from their queue.
 
 ```json
 {
