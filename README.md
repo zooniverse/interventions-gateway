@@ -88,3 +88,10 @@ To add new features
 1. Add specs and make them pass
 0. Commit the code with good commit messages
 0. Issue a pull request to start a discussion around the changes being included in the codebase
+
+Testing with docker-compose
+1. `docker-compose build .`
+0. `docker-compose up`
+
+Manually running the webserver
+1. `bundle exec puma -C docker/puma.rb`
