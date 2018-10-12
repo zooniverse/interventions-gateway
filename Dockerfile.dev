@@ -16,5 +16,4 @@ RUN bundle install
 ADD ./ /app
 ADD ./docker/supervisord.conf /etc/supervisor/conf.d/notifications.conf
 
-EXPOSE 80
 ENTRYPOINT /app/docker/start.sh
