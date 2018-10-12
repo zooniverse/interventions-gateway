@@ -1,5 +1,5 @@
 gateway_api:
-  dockerfile: Dockerfile
+  dockerfile: Dockerfile.dev
   build: .
   volumes:
     - ./:/app
