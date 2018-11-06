@@ -30,7 +30,7 @@ describe "NotificationsGatewayApi" do
 
     def sugar_intervention_payload(payload)
       payload.merge({
-        event: 'Intervention'
+        event: 'intervention'
       })
     end
 
@@ -94,7 +94,10 @@ describe "NotificationsGatewayApi" do
         end
 
         it "should forward the request to sugar client" do
-          expect(sugar).to receive(:experiment).with(sugar_intervention_payload(payload))
+          sugar_payload = sugar_intervention_payload(
+            payload.merge(event_type: 'subject_queue')
+          )
+          expect(sugar).to receive(:experiment).with(sugar_payload)
           post '/subject_queues', json_payload, headers
           expect(last_response).to be_ok
         end
@@ -156,7 +159,10 @@ describe "NotificationsGatewayApi" do
         end
 
         it "should forward the request to sugar client" do
-          expect(sugar).to receive(:experiment).with(sugar_intervention_payload(payload))
+          sugar_payload = sugar_intervention_payload(
+            payload.merge(event_type: 'message')
+          )
+          expect(sugar).to receive(:experiment).with(sugar_payload)
           post '/messages', json_payload, headers
           expect(last_response).to be_ok
         end

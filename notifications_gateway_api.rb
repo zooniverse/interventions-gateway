@@ -8,13 +8,9 @@ require_relative 'lib/version'
 
 SORTED_MESSAGE_KEYS = %w(message project_id user_id).freeze
 SORTED_SUBJECT_QUEUE_KEYS = %w(project_id subject_ids user_id workflow_id).freeze
-INTERVENTION_EVENT = { event: 'Intervention' }.freeze
-
-class Intervention < OpenStruct
-  def initialize(params)
-    super(params.merge(INTERVENTION_EVENT))
-  end
-end
+INTERVENTION_EVENT = { event: 'intervention' }.freeze
+MESSAGE_EVENT_TYPE = { event_type: 'message' }.freeze
+SUBJECT_QUEUE_EVENT_TYPE = { event_type: 'subject_queue' }.freeze
 
 class NotificationsGatewayApi < Sinatra::Base
   configure :production, :development do
@@ -40,7 +36,7 @@ class NotificationsGatewayApi < Sinatra::Base
       halt 422, 'message requires message, project_id and user_id attributes'
     end
 
-    message = Intervention.new(json)
+    message = Message.new(json)
 
     authorize(message) do
       sugar_client.experiment(message.to_h)
@@ -62,7 +58,7 @@ class NotificationsGatewayApi < Sinatra::Base
       halt 422, 'subject_queues requires project_id, subject_ids, user_id and workflow_id attributes'
     end
 
-    subject_queue_req = Intervention.new(json)
+    subject_queue_req = SubjectQueue.new(json)
 
     authorize(subject_queue_req) do
       sugar_client.experiment(subject_queue_req.to_h)
@@ -110,5 +106,23 @@ class NotificationsGatewayApi < Sinatra::Base
       status: "ok",
       message: "message sent to user_id: #{user_id}"
     }.to_json
+  end
+
+  class Intervention < OpenStruct
+    def initialize(params)
+      super(params.merge(INTERVENTION_EVENT))
+    end
+  end
+
+  class Message < Intervention
+    def initialize(params)
+      super(params.merge(MESSAGE_EVENT_TYPE))
+    end
+  end
+
+  class SubjectQueue < Intervention
+    def initialize(params)
+      super(params.merge(SUBJECT_QUEUE_EVENT_TYPE))
+    end
   end
 end
