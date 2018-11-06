@@ -31,46 +31,30 @@ owner or collaborator on, you will get an HTTP 403 error status.
 
 This service exposes the following API endpoints:
 
-### `POST /notifications`
+### `POST /message`
 
-This lets you send a message to a user, if they are currently online. There are two channels that a message can be sent down:
-1. Experiment
-0. Notification
+This lets you send a message to a user, if they are currently online.
+
+A message will be shown to the user once they submit the classification they are currently working on.
+
+A message will not be shown after posting to this message API if the user never submits another classification or they reload / close their browser.
+
+```json
+{
+    "project_id": "5733",
+    "user_id": "6",
+    "message": "All of your contributions really help."
+}
+```
 
 **Please note: the behaviour of how the notification events are presented to the user is out of the control of this repo.** Please refer to  https://github.com/zooniverse/Panoptes-Front-End/ for specific details on these notification message handling.
 
-#### Notifications channel
-An experiment message will be shown once they submit whatever classification they are currently working on. If they never submit another classification after you call this API, or if they reload or close their browser, the message will not be shown.
-```json
-{
-    "channel": "notification",
-    "type": "notification",
-    "project_id": "5733",
-    "user_id": "6",
-    "message": "All of your contributions really help."
-}
-```
-
-#### Experiment channel
-A notification message will be shown the the user in the client interface.
-```json
-{
-    "channel": "experiment",
-    "type": "notification",
-    "project_id": "5733",
-    "user_id": "6",
-    "message": "All of your contributions really help."
-}
-```
-
 ### `POST /subject_queues`
 
-This lets you prepend subjects into the user's queue. This queue is only
-maintained in the browser, so if the user reloads or closes their browser tab, the subjects will disappear from their queue.
+This lets you prepend subjects into the user's queue. This queue is only maintained in the browser, so if the user reloads or closes their browser tab, the subjects will disappear from their queue.
 
 ```json
 {
-    "type": "subject_queue",
     "project_id": "3434",
     "user_id": "23",
     "subject_ids": ["1", "2"],
