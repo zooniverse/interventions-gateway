@@ -1,0 +1,14 @@
+:token := (shell-command-to-string "panoptes-token")
+
+#
+POST http://localhost:9292/notifications
+Authorization: Bearer :token
+Accept: application/json
+Content-Type: application/json
+
+{
+  "type": "notification",
+  "project_id": "643",
+  "user_id": "299788",
+  "message": "Hello!"
+}
