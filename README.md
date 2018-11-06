@@ -31,7 +31,7 @@ owner or collaborator on, you will get an HTTP 403 error status.
 
 This service exposes the following API endpoints:
 
-### `POST /message`
+### `POST /messages`
 
 This lets you send a message to a user, if they are currently online.
 
