@@ -28,10 +28,19 @@ describe "NotificationsGatewayApi" do
       allow(Sugar).to receive(:new).and_return(sugar)
     end
 
+    def sugar_intervention_payload(payload)
+      payload.merge({
+        event: 'Intervention'
+      })
+    end
+
+    def payload_without_key(payload, key)
+      payload.reject { |k,v| k == key }
+    end
+
     describe "/subject_queues" do
       let(:payload) do
         {
-          "type": "subject_queue",
           "project_id": project_id,
           "user_id": "23",
           "subject_ids": ["1", "2"],
@@ -42,6 +51,18 @@ describe "NotificationsGatewayApi" do
       it "should respond with unauthorized without auth headers" do
         post '/subject_queues', json_payload
         expect(last_response).to be_unauthorized
+      end
+
+      it "should respond with unprocessable with extra payload information" do
+        post '/subject_queues', payload.merge(not_needed: "true").to_json, headers
+        expect(last_response).to be_unprocessable
+      end
+
+      %i(project_id subject_ids user_id workflow_id).each do |attribute|
+        it "should respond with unprocessable without #{attribute} param" do
+          post '/subject_queues', payload_without_key(payload, attribute).to_json, headers
+          expect(last_response).to be_unprocessable
+        end
       end
 
       context "with a token missing access roles on the project" do
@@ -73,17 +94,16 @@ describe "NotificationsGatewayApi" do
         end
 
         it "should forward the request to sugar client" do
-          expect(sugar).to receive(:experiment).with(payload)
+          expect(sugar).to receive(:experiment).with(sugar_intervention_payload(payload))
           post '/subject_queues', json_payload, headers
           expect(last_response).to be_ok
         end
       end
     end
 
-    describe "/notifications" do
+    describe "/messages" do
       let(:payload) do
         {
-          "type": "notification",
           "project_id": project_id,
           "user_id": "6",
           "message": "All of your contributions really help."
@@ -91,61 +111,54 @@ describe "NotificationsGatewayApi" do
       end
 
       it "should respond with unauthorized without auth headers" do
-        post '/notifications', payload.to_json
+        post '/messages', json_payload
         expect(last_response).to be_unauthorized
       end
 
-      it "should respond with unprocessable without channel param" do
-        post '/notifications', payload.to_json, headers
+      it "should respond with unprocessable with extra payload information" do
+        post '/messages', payload.merge(not_needed: "true").to_json, headers
         expect(last_response).to be_unprocessable
       end
 
-      it "should respond with unprocessable with incorrrect channel param" do
-        payload["channel"] = "unknown_channel"
-        post '/notifications', payload.to_json, headers
-        expect(last_response).to be_unprocessable
-        expect(last_response.body).to eq("Please provide a valid channel param values can be 'notification' or 'experiment'")
+      %i(project_id message user_id).each do |attribute|
+        it "should respond with unprocessable without {#{attribute}} param" do
+          post '/messages', payload_without_key(payload, attribute).to_json, headers
+          expect(last_response).to be_unprocessable
+        end
       end
 
-      context "with valid channels" do
-        {experiment: :experiment, notification: :notify}.each do |channel, sugar_method|
-          context "with a token missing access roles on the project" do
-            before do
-              expect(credential)
-                .to receive(:accessible_project?)
-                .with(project_id)
-                .and_return(false)
-            end
+      context "with a token missing access roles on the project" do
+        before do
+          expect(credential)
+            .to receive(:accessible_project?)
+            .with(project_id)
+            .and_return(false)
+        end
 
-            it "should respond with forbidden" do
-              notify_payload = payload.merge("channel" => channel).to_json
-              post '/notifications', notify_payload, headers
-              expect(last_response).to be_forbidden
-            end
-          end
+        it "should respond with forbidden" do
+          post '/messages', json_payload, headers
+          expect(last_response).to be_forbidden
+        end
+      end
 
-          context "with a token having access roles on the project" do
-            before do
-              expect(credential)
-                .to receive(:accessible_project?)
-                .with(project_id)
-                .and_return(true)
-            end
+      context "with a token having access roles on the project" do
+        before do
+          expect(credential)
+            .to receive(:accessible_project?)
+            .with(project_id)
+            .and_return(true)
+        end
 
-            it "should respond with ok" do
-              allow(sugar).to receive(sugar_method)
-              notify_payload = payload.merge("channel" => channel).to_json
-              post '/notifications', notify_payload, headers
-              expect(last_response).to be_ok
-            end
+        it "should respond with ok" do
+          allow(sugar).to receive(:experiment)
+          post '/messages', json_payload, headers
+          expect(last_response).to be_ok
+        end
 
-            it "should forward the request to sugar client" do
-              expect(sugar).to receive(sugar_method).with(payload)
-              notify_payload = payload.merge("channel" => channel).to_json
-              post '/notifications', notify_payload, headers
-              expect(last_response).to be_ok
-            end
-          end
+        it "should forward the request to sugar client" do
+          expect(sugar).to receive(:experiment).with(sugar_intervention_payload(payload))
+          post '/messages', json_payload, headers
+          expect(last_response).to be_ok
         end
       end
     end

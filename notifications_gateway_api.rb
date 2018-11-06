@@ -6,16 +6,15 @@ require_relative 'lib/sugar'
 require_relative 'lib/credential'
 require_relative 'lib/version'
 
-class Notification < OpenStruct
-end
+SORTED_MESSAGE_KEYS = %w(message project_id user_id).freeze
+SORTED_SUBJECT_QUEUE_KEYS = %w(project_id subject_ids user_id workflow_id).freeze
+INTERVENTION_EVENT = { event: 'Intervention' }.freeze
 
-class SubjectQueue < OpenStruct
+class Intervention < OpenStruct
+  def initialize(params)
+    super(params.merge(INTERVENTION_EVENT))
+  end
 end
-
-SUGAR_CHANNELS = {
-  "experiment" => :experiment,
-  "notification" => :notify
-}.freeze
 
 class NotificationsGatewayApi < Sinatra::Base
   configure :production, :development do
@@ -28,38 +27,42 @@ class NotificationsGatewayApi < Sinatra::Base
   end
 
   # {
-  #   "channel": "(experiement|notification)",
-  #   "type": "notification",
-  #   "project_id": "5733",
-  #   "user_id": "6",
   #   "message": "All of your contributions really help."
+  #   "project_id": "5733",
+  #   "user_id": "6"
   # }
-  post '/notifications' do
+  post '/messages' do
     json = JSON.parse(request.body.read.to_s)
 
-    channel_param = json.delete("channel")
-    sugar_method = SUGAR_CHANNELS[channel_param]
-    unless sugar_method
-      halt 422, missing_channel_param_message
+    valid_payload = SORTED_MESSAGE_KEYS == json.keys.sort
+
+    unless valid_payload
+      halt 422, 'message requires message, project_id and user_id attributes'
     end
 
-    notification = Notification.new(json)
+    message = Intervention.new(json)
 
-    authorize(notification) do
-      sugar_client.send(sugar_method, notification.to_h)
+    authorize(message) do
+      sugar_client.experiment(message.to_h)
     end
   end
 
   # {
-  #   "type": "subject_queue",
   #   "project_id": "3434",
-  #   "user_id": "23",
   #   "subject_ids": ["1", "2"],
+  #   "user_id": "23",
   #   "workflow_id": "21"
   # }
   post '/subject_queues' do
     json = JSON.parse(request.body.read.to_s)
-    subject_queue_req = SubjectQueue.new(json)
+
+    valid_payload = SORTED_SUBJECT_QUEUE_KEYS == json.keys.sort
+
+    unless valid_payload
+      halt 422, 'subject_queues requires project_id, subject_ids, user_id and workflow_id attributes'
+    end
+
+    subject_queue_req = Intervention.new(json)
 
     authorize(subject_queue_req) do
       sugar_client.experiment(subject_queue_req.to_h)
@@ -98,7 +101,7 @@ class NotificationsGatewayApi < Sinatra::Base
       yield
       success_response(request.user_id)
     else
-      halt 403, missing_roles_message
+      halt 403, 'You do not have access to this project'
     end
   end
 
@@ -107,15 +110,5 @@ class NotificationsGatewayApi < Sinatra::Base
       status: "ok",
       message: "message sent to user_id: #{user_id}"
     }.to_json
-  end
-
-  def missing_roles_message
-     @missing_roles_message ||= 'You do not have access to this project'.freeze
-  end
-
-  def missing_channel_param_message
-     @missing_channel_param_message ||=
-      "Please provide a valid channel param " \
-      "values can be 'notification' or 'experiment'".freeze
   end
 end
