@@ -1,10 +1,12 @@
 require 'sinatra/base'
 require 'ostruct'
-require 'pry' if ['test', 'development'].include?(ENV['RACK_ENV'])
 
 require_relative 'lib/sugar'
 require_relative 'lib/credential'
 require_relative 'lib/version'
+require_relative 'lib/env'
+
+require 'pry' if Env.local?
 
 SORTED_MESSAGE_KEYS = %w(message project_id user_id).freeze
 SORTED_SUBJECT_QUEUE_KEYS = %w(project_id subject_ids user_id workflow_id).freeze
@@ -12,7 +14,7 @@ INTERVENTION_EVENT = { event: 'intervention' }.freeze
 MESSAGE_EVENT_TYPE = { event_type: 'message' }.freeze
 SUBJECT_QUEUE_EVENT_TYPE = { event_type: 'subject_queue' }.freeze
 
-class NotificationsGatewayApi < Sinatra::Base
+class InterventionsGatewayApi < Sinatra::Base
   configure :production, :development do
     enable :logging
   end

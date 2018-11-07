@@ -1,6 +1,6 @@
 require 'spec_helper.rb'
 
-describe "NotificationsGatewayApi" do
+describe "InterventionsGatewayApi" do
   describe "/" do
     it "should return a health check response" do
       get '/'

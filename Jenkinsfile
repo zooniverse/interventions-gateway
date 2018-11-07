@@ -3,7 +3,7 @@
 node {
     checkout scm
 
-    def dockerRepoName = 'zooniverse/notifications-gateway'
+    def dockerRepoName = 'zooniverse/interventions-gateway'
     def dockerImageName = "${dockerRepoName}:${BRANCH_NAME}"
     def newImage = null
 
@@ -22,8 +22,8 @@ node {
                  cd "/var/jenkins_home/jobs/Zooniverse GitHub/jobs/operations/branches/master/workspace" && \
                  ./hermes_wrapper.sh exec StandaloneAppsSwarm -- \
                      docker stack deploy --prune \
-                     -c /opt/infrastructure/stacks/notifications-gateway-staging.yml \
-                     notifications-gateway-staging
+                     -c /opt/infrastructure/stacks/interventions-gateway-staging.yml \
+                     interventions-gateway-staging
              """
          }
      }
@@ -38,8 +38,8 @@ node {
                  cd "/var/jenkins_home/jobs/Zooniverse GitHub/jobs/operations/branches/master/workspace" && \
                  ./hermes_wrapper.sh exec StandaloneAppsSwarm -- \
                      docker stack deploy --prune \
-                     -c /opt/infrastructure/stacks/notifications-gateway.yml \
-                     notifications-gateway
+                     -c /opt/infrastructure/stacks/interventions-gateway.yml \
+                     interventions-gateway
              """
          }
      }
