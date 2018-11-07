@@ -1,6 +1,6 @@
-# Notifications API Gateway
+# Interventions API Gateway
 
-This is a gateway service which allows project owners to send messages to the
+This is a gateway service which allows authorized project owners to send messages to the
 frontend via Sugar.
 
 ## Operations
@@ -47,7 +47,7 @@ A message will not be shown after posting to this message API if the user never 
 }
 ```
 
-**Please note: the behaviour of how the notification events are presented to the user is out of the control of this repo.** Please refer to  https://github.com/zooniverse/Panoptes-Front-End/ for specific details on these notification message handling.
+**Please note: the behaviour of how the intervention events are presented to the user is out of the control of this repo.** Please refer to  https://github.com/zooniverse/Panoptes-Front-End/ for specific details of intervention message handling.
 
 ### `POST /subject_queues`
 
