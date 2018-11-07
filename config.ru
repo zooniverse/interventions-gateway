@@ -1,2 +1,2 @@
-require './app'
-run App
+require './notifications_gateway_api'
+run NotificationsGatewayApi

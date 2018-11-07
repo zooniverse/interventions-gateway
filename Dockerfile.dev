@@ -11,10 +11,9 @@ WORKDIR /app
 
 ADD ./Gemfile /app
 ADD ./Gemfile.lock /app
-RUN bundle install --without development test
+RUN bundle install
 
 ADD ./ /app
 ADD ./docker/supervisord.conf /etc/supervisor/conf.d/notifications.conf
 
-EXPOSE 80
 ENTRYPOINT /app/docker/start.sh

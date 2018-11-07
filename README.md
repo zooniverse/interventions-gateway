@@ -31,35 +31,51 @@ owner or collaborator on, you will get an HTTP 403 error status.
 
 This service exposes the following API endpoints:
 
-### `POST /notifications`
+### `POST /messages`
 
-This lets you send a message to a user, if they are currently online. The
-message will be shown once they submit whatever classification they are
-currently working on. If they never submit another classification after
-you call this API, or if they reload or close their browser, the message will
-not be shown.
+This lets you send a message to a user, if they are currently online.
+
+A message will be shown to the user once they submit the classification they are currently working on.
+
+A message will not be shown after posting to this message API if the user never submits another classification or they reload / close their browser.
 
 ```json
 {
-    "type": "notification",
     "project_id": "5733",
     "user_id": "6",
-    "message": "All of your contributions really help.”
+    "message": "All of your contributions really help."
 }
 ```
 
+**Please note: the behaviour of how the notification events are presented to the user is out of the control of this repo.** Please refer to  https://github.com/zooniverse/Panoptes-Front-End/ for specific details on these notification message handling.
+
 ### `POST /subject_queues`
 
-This lets you prepend subjects into the user's queue. This queue is only
-maintained in the browser, so if the user reloads or closes their browser tab,
-the subjects will disappear from their queue.
+This lets you prepend subjects into the user's queue. This queue is only maintained in the browser, so if the user reloads or closes their browser tab, the subjects will disappear from their queue.
 
 ```json
 {
-    "type": "subject_queue",
     "project_id": "3434",
     "user_id": "23",
     "subject_ids": ["1", "2"],
     "workflow_id": "21"
 }
 ```
+
+## Development
+Install specified ruby version (see Dockerfile)
+1. `bundle install`
+0. `bundle exec rspec` or `rspec`
+
+To add new features
+
+1. Add specs and make them pass
+0. Commit the code with good commit messages
+0. Issue a pull request to start a discussion around the changes being included in the codebase
+
+Testing with docker-compose
+1. `docker-compose build .`
+0. `docker-compose up`
+
+Manually running the webserver
+1. `bundle exec puma -C docker/puma.rb`

@@ -25,6 +25,8 @@ GEM
     rack (2.0.5)
     rack-protection (2.0.3)
       rack
+    rack-test (1.1.0)
+      rack (>= 1.0, < 3)
     rspec (3.8.0)
       rspec-core (~> 3.8.0)
       rspec-expectations (~> 3.8.0)
@@ -52,8 +54,9 @@ DEPENDENCIES
   panoptes-client (~> 0.3.7)
   pry
   puma
+  rack-test
   rspec
   sinatra
 
 BUNDLED WITH
-   1.16.2
+   1.16.6
