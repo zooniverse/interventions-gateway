@@ -93,6 +93,17 @@ describe "NotificationsGatewayApi" do
           expect(last_response).to be_ok
         end
 
+        it "should respond with a success message" do
+          allow(sugar).to receive(:experiment)
+          post '/subject_queues', json_payload, headers
+          json_response_body = JSON.parse(last_response.body)
+          expected_msg = {
+            "status"=>"ok",
+            "message"=>"payload sent to user_id: 23"
+          }
+          expect(json_response_body).to eq(expected_msg)
+        end
+
         it "should forward the request to sugar client" do
           sugar_payload = sugar_intervention_payload(
             payload.merge(event_type: 'subject_queue')

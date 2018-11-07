@@ -104,7 +104,7 @@ class NotificationsGatewayApi < Sinatra::Base
   def success_response(user_id)
     {
       status: "ok",
-      message: "message sent to user_id: #{user_id}"
+      message: "payload sent to user_id: #{user_id}"
     }.to_json
   end
 
