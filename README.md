@@ -74,6 +74,11 @@ Once approved, you can use the credentials in OAuth flows described above to get
 
 Good news - as a project owner you can already send intervention messages to a project. You can also send messages to any project you have collaborator rights on.
 
+#### Debugging
+If you get 200 status from the interventions API on POST requests then you can check the delivery of intervention messages through the logged in user websocket connections in web browser debug tools.
+
+Launch your favourite debug tools, in network panel find the web socket connection `wss://notifications.zooniverse.org/sugar/`. Inspect the frames coming down to see the messages being sent from the interventions gateway.
+
 ## Development
 Install specified ruby version (see Dockerfile)
 1. `bundle install`
