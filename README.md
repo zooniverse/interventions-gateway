@@ -1,13 +1,13 @@
 # Interventions API Gateway
 
-This is a gateway service which allows authorized project owners to send messages to the
+This is a gateway service which allows project owners to send messages to the
 frontend via Sugar.
 
 ## Operations
 
-This service automatically deploys the `master` branch to https://notifications-gateway-staging.zooniverse.org
+This service automatically deploys the `master` branch to https://interventions-gateway-staging.zooniverse.org
 
-The production branch gets deployed to https://notifications-gateway.zooniverse.org
+The production branch gets deployed to https://interventions-gateway.zooniverse.org
 
 ## Usage
 
@@ -47,7 +47,7 @@ A message will not be shown after posting to this message API if the user never 
 }
 ```
 
-**Please note: the behaviour of how the intervention events are presented to the user is out of the control of this repo.** Please refer to  https://github.com/zooniverse/Panoptes-Front-End/ for specific details of intervention message handling.
+**Please note: the behaviour of how the interventions events are presented to the user is out of the control of this repo.** Please refer to  https://github.com/zooniverse/Panoptes-Front-End/ for specific details on intervention message handling.
 
 ### `POST /subject_queues`
 
@@ -62,6 +62,18 @@ This lets you prepend subjects into the user's queue. This queue is only maintai
 }
 ```
 
+#### On projects you do not run
+
+To be able to post intervention messages to users on a project, you need to be an owner or have collaborator rights on a project.
+
+Approved third parties can use Zooniverse controlled OAuth credentials to gain access to projects they don't run. Please get in touch via [contact@zooniverse.org](mailto:contact@zooniverse.org) for more information.
+
+Once approved, you can use the credentials in OAuth flows described above to get bearer tokens.
+
+#### On projects you do run
+
+Good news - as a project owner you can already send intervention messages to a project. You can also send messages to any project you have collaborator rights on.
+
 ## Development
 Install specified ruby version (see Dockerfile)
 1. `bundle install`
@@ -74,7 +86,7 @@ To add new features
 0. Issue a pull request to start a discussion around the changes being included in the codebase
 
 Testing with docker-compose
-1. `docker-compose build .`
+1. `docker-compose build`
 0. `docker-compose up`
 
 Manually running the webserver
