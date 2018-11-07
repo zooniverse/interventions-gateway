@@ -10,4 +10,8 @@ module Env
   def self.environment
     ENV.fetch('RACK_ENV', 'development')
   end
+
+  def self.rollbar_token
+    ENV.fetch('ROLLBAR_TOKEN', '')
+  end
 end
