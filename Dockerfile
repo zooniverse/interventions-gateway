@@ -14,7 +14,7 @@ ADD ./Gemfile.lock /app
 RUN bundle install --without development test
 
 ADD ./ /app
-ADD ./docker/supervisord.conf /etc/supervisor/conf.d/notifications.conf
+ADD ./docker/supervisord.conf /etc/supervisor/conf.d/interventions.conf
 
 EXPOSE 80
 ENTRYPOINT /app/docker/start.sh

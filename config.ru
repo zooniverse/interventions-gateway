@@ -1,2 +1,2 @@
-require './notifications_gateway_api'
-run NotificationsGatewayApi
+require 'interventions_gateway_api'
+run InterventionsGatewayApi

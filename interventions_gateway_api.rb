@@ -12,7 +12,7 @@ INTERVENTION_EVENT = { event: 'intervention' }.freeze
 MESSAGE_EVENT_TYPE = { event_type: 'message' }.freeze
 SUBJECT_QUEUE_EVENT_TYPE = { event_type: 'subject_queue' }.freeze
 
-class NotificationsGatewayApi < Sinatra::Base
+class InterventionsGatewayApi < Sinatra::Base
   configure :production, :development do
     enable :logging
   end
