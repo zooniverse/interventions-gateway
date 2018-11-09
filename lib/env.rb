@@ -12,6 +12,6 @@ module Env
   end
 
   def self.rollbar_token
-    ENV.fetch('ROLLBAR_TOKEN', '')
+    ENV.fetch('ROLLBAR_ACCESS_TOKEN', '')
   end
 end
