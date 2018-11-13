@@ -16,6 +16,8 @@ MESSAGE_EVENT_TYPE = { event_type: 'message' }.freeze
 SUBJECT_QUEUE_EVENT_TYPE = { event_type: 'subject_queue' }.freeze
 
 class InterventionsGatewayApi < Sinatra::Base
+  use Rollbar::Middleware::Sinatra
+
   attr_reader :credential
 
   configure :production, :development do
