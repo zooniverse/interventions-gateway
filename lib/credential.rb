@@ -11,14 +11,19 @@ class Credential
   end
 
   def logged_in?
-    return false if jwt_payload.empty?
-    jwt_payload.key?('login')
-  rescue JWT::ExpiredSignature
+    if user_login
+      true
+    else
+      false
+    end
+  rescue JWTDecoder::InvalidToken
     false
   end
 
   def expired?
-    expires_at < Time.zone.now
+    expires_at < Time.now.utc
+  rescue JWTDecoder::InvalidToken
+    true
   end
 
   def project_ids
@@ -44,15 +49,6 @@ class Credential
 
   private
 
-  def jwt_payload
-    @jwt_payload ||=
-      if token
-        client.current_user
-      else
-        {}
-      end
-  end
-
   def client
     @client ||= Panoptes::Client.new(env: panoptes_client_env, auth: { token: token })
   end
@@ -61,11 +57,17 @@ class Credential
     ENV["RACK_ENV"]
   end
 
+  def jwt_payload
+    @decoder ||= JWTDecoder.new(token, client)
+    @decoder.payload
+  end
+
+  def user_login
+    @user_login ||= jwt_payload.dig('data', 'login')
+  end
+
   def expires_at
-    @expires_at ||= begin
-                      payload, _ = JWT.decode token, client.jwt_signing_public_key, algorithm: 'RS512'
-                      Time.at(payload.fetch('exp'))
-                    end
+    @expires_at ||= Time.at(jwt_payload['exp'])
   end
 
   def fetch_accessible_projects
@@ -74,5 +76,33 @@ class Credential
 
     puts "done"
     result
+  end
+
+  class JWTDecoder
+    class InvalidToken < StandardError; end
+
+    attr_reader :token, :client
+
+    def initialize(token, client)
+      @token = token
+      @client = client
+    end
+
+    def payload
+      @payload ||= decode_payload
+    end
+
+    private
+
+    def decode_payload
+      payload, _ = JWT.decode(
+        token,
+        client.jwt_signing_public_key,
+        algorithm: 'RS512'
+      )
+      payload
+    rescue JWT::ExpiredSignature, JWT::VerificationError
+      raise InvalidToken
+    end
   end
 end
