@@ -14,12 +14,37 @@ describe "InterventionsGatewayApi" do
     end
   end
 
+  shared_examples "validates bearer tokens" do
+    it "should respond with unauthorized without auth headers" do
+      post end_point, json_payload
+      expect(last_response).to be_unauthorized
+    end
+
+    context "when token is expired" do
+      let(:credential) { instance_double("Credential", expired?: true, logged_in?: true) }
+
+      it "should respond with unauthorized" do
+        post end_point, json_payload, headers
+        expect(last_response).to be_unauthorized
+      end
+    end
+
+    context "when token is missing user" do
+      let(:credential) { instance_double("Credential", expired?: false, logged_in?: false) }
+
+      it "should respond with unauthorized" do
+        post end_point, json_payload, headers
+        expect(last_response).to be_unauthorized
+      end
+    end
+  end
+
   context "when supplying tokens" do
     let(:headers) do
       {'HTTP_AUTHORIZATION' => 'Bearer FakeToken'}
     end
     let(:json_payload) { payload.to_json }
-    let(:credential) { instance_double(Credential) }
+    let(:credential) { instance_double(Credential, expired?: false, logged_in?: true) }
     let(:sugar) { instance_double(Sugar) }
     let(:project_id) { "3434" }
 
@@ -48,9 +73,8 @@ describe "InterventionsGatewayApi" do
         }
       end
 
-      it "should respond with unauthorized without auth headers" do
-        post '/subject_queues', json_payload
-        expect(last_response).to be_unauthorized
+      it_behaves_like "validates bearer tokens" do
+        let(:end_point) { "/subject_queues" }
       end
 
       it "should respond with unprocessable with extra payload information" do
@@ -124,9 +148,8 @@ describe "InterventionsGatewayApi" do
         }
       end
 
-      it "should respond with unauthorized without auth headers" do
-        post '/messages', json_payload
-        expect(last_response).to be_unauthorized
+      it_behaves_like "validates bearer tokens" do
+        let(:end_point) { "/messages" }
       end
 
       it "should respond with unprocessable with extra payload information" do

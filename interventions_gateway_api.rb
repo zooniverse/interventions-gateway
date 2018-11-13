@@ -16,13 +16,20 @@ MESSAGE_EVENT_TYPE = { event_type: 'message' }.freeze
 SUBJECT_QUEUE_EVENT_TYPE = { event_type: 'subject_queue' }.freeze
 
 class InterventionsGatewayApi < Sinatra::Base
+  attr_reader :credential
+
   configure :production, :development do
     enable :logging
   end
 
   before do
     content_type 'application/json'
-    setup_credentials if request.post?
+    if request.post?
+      setup_credentials
+      unless valid_credentials
+        halt 401
+      end
+    end
   end
 
   # {
@@ -90,13 +97,17 @@ class InterventionsGatewayApi < Sinatra::Base
     if match
       auth = match[1]
       @credential = Credential.new(auth)
-    else
-      halt 401
     end
   end
 
+  def valid_credentials
+    return false unless credential
+
+    credential.logged_in? && !credential.expired?
+  end
+
   def authorize(request)
-    if @credential.accessible_project?(request.project_id)
+    if credential.accessible_project?(request.project_id)
       yield
       success_response(request.user_id)
     else
