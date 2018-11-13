@@ -75,12 +75,34 @@ describe "Credential" do
   end
 
   describe "accessible_project?" do
-    it "should pass with correct roles for token" do
-      pending
+    let(:client_double) do
+      instance_double("Panoptes::Client", panoptes: page_double)
     end
 
-    it "should fail when i have no roles on project" do
-      pending
+    before do
+      allow(Panoptes::Client).to receive(:new).and_return(client_double)
+    end
+
+    context "with correct roles on the project for the supplied token" do
+      let(:response) do
+        {
+          "projects"=> [{"id"=>"1"}]
+        }
+      end
+      let(:page_double) { double(paginate: response) }
+
+      it "should pass" do
+        expect(credential.accessible_project?(1)).to eq(true)
+      end
+    end
+
+    context "with no correct roles on the project for the supplied token" do
+      let(:response) { { "projects"=> [] } }
+      let(:page_double) { double(paginate: response) }
+
+      it "should fail" do
+        expect(credential.accessible_project?(1)).to eq(false)
+      end
     end
   end
 end
