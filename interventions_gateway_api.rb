@@ -26,10 +26,7 @@ class InterventionsGatewayApi < Sinatra::Base
     content_type 'application/json'
     if request.post?
       setup_credentials
-
-      if credential&.ok?
-        credential
-      else
+      unless valid_credentials
         halt 401
       end
     end
@@ -101,6 +98,12 @@ class InterventionsGatewayApi < Sinatra::Base
       auth = match[1]
       @credential = Credential.new(auth)
     end
+  end
+
+  def valid_credentials
+    return false unless credential
+
+    credential.logged_in? && !credential.expired?
   end
 
   def authorize(request)

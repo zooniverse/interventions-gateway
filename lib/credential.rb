@@ -10,10 +10,6 @@ class Credential
     @token = token
   end
 
-  def ok?
-    logged_in? && !expired?
-  end
-
   def logged_in?
     return false unless jwt_payload.present?
     jwt_payload['login'].present?
