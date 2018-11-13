@@ -19,6 +19,14 @@ describe "InterventionsGatewayApi" do
       post end_point, json_payload
       expect(last_response).to be_unauthorized
     end
+
+    context "when token is invalid" do
+      let(:credential) { instance_double("Credential", ok?: false) }
+      it "should respond with unauthorized" do
+        post end_point, json_payload, headers
+        expect(last_response).to be_unauthorized
+      end
+    end
   end
 
   context "when supplying tokens" do
@@ -26,7 +34,7 @@ describe "InterventionsGatewayApi" do
       {'HTTP_AUTHORIZATION' => 'Bearer FakeToken'}
     end
     let(:json_payload) { payload.to_json }
-    let(:credential) { instance_double(Credential) }
+    let(:credential) { instance_double(Credential, ok?: true) }
     let(:sugar) { instance_double(Sugar) }
     let(:project_id) { "3434" }
 
