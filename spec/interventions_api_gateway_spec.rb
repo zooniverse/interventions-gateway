@@ -14,6 +14,13 @@ describe "InterventionsGatewayApi" do
     end
   end
 
+  shared_examples "validates bearer tokens" do
+    it "should respond with unauthorized without auth headers" do
+      post end_point, json_payload
+      expect(last_response).to be_unauthorized
+    end
+  end
+
   context "when supplying tokens" do
     let(:headers) do
       {'HTTP_AUTHORIZATION' => 'Bearer FakeToken'}
@@ -48,9 +55,8 @@ describe "InterventionsGatewayApi" do
         }
       end
 
-      it "should respond with unauthorized without auth headers" do
-        post '/subject_queues', json_payload
-        expect(last_response).to be_unauthorized
+      it_behaves_like "validates bearer tokens" do
+        let(:end_point) { "/subject_queues" }
       end
 
       it "should respond with unprocessable with extra payload information" do
@@ -124,9 +130,8 @@ describe "InterventionsGatewayApi" do
         }
       end
 
-      it "should respond with unauthorized without auth headers" do
-        post '/messages', json_payload
-        expect(last_response).to be_unauthorized
+      it_behaves_like "validates bearer tokens" do
+        let(:end_point) { "/messages" }
       end
 
       it "should respond with unprocessable with extra payload information" do
