@@ -18,6 +18,7 @@ describe "InterventionsGatewayApi" do
     it "should respond with unauthorized without auth headers" do
       post end_point, json_payload
       expect(last_response).to be_unauthorized
+      expect(last_response.body).to eq("invalid credentials, please check your token details")
     end
 
     context "when token is expired" do

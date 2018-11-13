@@ -11,42 +11,39 @@ class Credential
   end
 
   def logged_in?
-    return false unless jwt_payload.present?
-    jwt_payload['login'].present?
-  rescue JWT::ExpiredSignature
+    if user_login
+      true
+    else
+      false
+    end
+  rescue JWTDecoder::InvalidToken
     false
   end
 
   def expired?
-    expires_at < Time.zone.now
-  end
-
-  def project_ids
-    @project_ids ||=
-      fetch_accessible_projects['projects'].map { |prj| prj['id'] }
+    expires_at < Time.now.utc
+  rescue JWTDecoder::InvalidToken
+    true
   end
 
   def accessible_project?(id)
-    project_ids.include?(id)
-  end
+    api_response = client.panoptes.paginate(
+      '/projects',
+      {
+        id: id,
+        current_user_roles: OWNER_ROLES,
+        cards: true
+      }
+    )
 
-  def accessible_workflow?(id)
-    response = client.panoptes.get("/workflows/#{id}")
-    workflow_hash = response['workflows'][0]
-    project_id = workflow_hash['links']['project'].to_i
-
-    if project_ids.include?(project_id)
-      workflow_hash
+    if api_response["projects"].empty?
+      false
+    else
+      true
     end
-  rescue Panoptes::Client::ResourceNotFound
-    nil
   end
 
   private
-
-  def jwt_payload
-    @jwt_payload ||= token ? client.current_user : {}
-  end
 
   def client
     @client ||= Panoptes::Client.new(env: panoptes_client_env, auth: { token: token })
@@ -56,18 +53,44 @@ class Credential
     ENV["RACK_ENV"]
   end
 
-  def expires_at
-    @expires_at ||= begin
-                      payload, _ = JWT.decode token, client.jwt_signing_public_key, algorithm: 'RS512'
-                      Time.at(payload.fetch('exp'))
-                    end
+  def jwt_payload
+    @decoder ||= JWTDecoder.new(token, client)
+    @decoder.payload
   end
 
-  def fetch_accessible_projects
-    puts "Loading accessible projects from Panoptes"
-    result = client.panoptes.paginate('/projects', current_user_roles: OWNER_ROLES)
+  def user_login
+    @user_login ||= jwt_payload.dig('data', 'login')
+  end
 
-    puts "done"
-    result
+  def expires_at
+    @expires_at ||= Time.at(jwt_payload['exp'])
+  end
+
+  class JWTDecoder
+    class InvalidToken < StandardError; end
+
+    attr_reader :token, :client
+
+    def initialize(token, client)
+      @token = token
+      @client = client
+    end
+
+    def payload
+      @payload ||= decode_payload
+    end
+
+    private
+
+    def decode_payload
+      payload, _ = JWT.decode(
+        token,
+        client.jwt_signing_public_key,
+        algorithm: 'RS512'
+      )
+      payload
+    rescue JWT::ExpiredSignature, JWT::VerificationError
+      raise InvalidToken
+    end
   end
 end
