@@ -27,7 +27,7 @@ class InterventionsGatewayApi < Sinatra::Base
     if request.post?
       setup_credentials
       unless valid_credentials
-        halt 401
+        halt 401, 'invalid credentials, please check your token details'
       end
     end
   end
