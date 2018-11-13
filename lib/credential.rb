@@ -11,8 +11,8 @@ class Credential
   end
 
   def logged_in?
-    return false unless jwt_payload.present?
-    jwt_payload['login'].present?
+    return false if jwt_payload.empty?
+    jwt_payload.key?('login')
   rescue JWT::ExpiredSignature
     false
   end
@@ -45,7 +45,12 @@ class Credential
   private
 
   def jwt_payload
-    @jwt_payload ||= token ? client.current_user : {}
+    @jwt_payload ||=
+      if token
+        client.current_user
+      else
+        {}
+      end
   end
 
   def client
