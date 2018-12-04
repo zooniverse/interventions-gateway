@@ -20,7 +20,7 @@ class InterventionsGatewayApi < Sinatra::Base
 
   attr_reader :credential
 
-  configure :production, :development do
+  configure :production, :staging, :development do
     enable :logging
   end
 
