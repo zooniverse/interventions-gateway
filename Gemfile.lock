@@ -28,7 +28,7 @@ GEM
       rack
     rack-test (1.1.0)
       rack (>= 1.0, < 3)
-    rollbar (2.18.0)
+    rollbar (2.18.1)
       multi_json
     rspec (3.8.0)
       rspec-core (~> 3.8.0)
