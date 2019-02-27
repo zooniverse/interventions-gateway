@@ -20,7 +20,7 @@ node {
          stage('Deploy to Swarm') {
              sh """
                  cd "/var/jenkins_home/jobs/Zooniverse GitHub/jobs/operations/branches/master/workspace" && \
-                 ./hermes_wrapper.sh exec StandaloneAppsSwarm -- \
+                 ./hermes_wrapper.sh exec swarm19a -- \
                      docker stack deploy --prune \
                      -c /opt/infrastructure/stacks/interventions-gateway-staging.yml \
                      interventions-gateway-staging
@@ -36,7 +36,7 @@ node {
          stage('Deploy to Swarm') {
              sh """
                  cd "/var/jenkins_home/jobs/Zooniverse GitHub/jobs/operations/branches/master/workspace" && \
-                 ./hermes_wrapper.sh exec StandaloneAppsSwarm -- \
+                 ./hermes_wrapper.sh exec swarm19a -- \
                      docker stack deploy --prune \
                      -c /opt/infrastructure/stacks/interventions-gateway.yml \
                      interventions-gateway
