@@ -18,7 +18,11 @@ describe "InterventionsGatewayApi" do
     it "should respond with unauthorized without auth headers" do
       post end_point, json_payload
       expect(last_response).to be_unauthorized
-      expect(last_response.body).to eq("invalid credentials, please check your token details")
+      json_response_body = JSON.parse(last_response.body)
+      error_response = {
+        "errors" => ["invalid credentials, please check your token details"]
+      }
+      expect(json_response_body).to eq(error_response)
     end
 
     context "when token is expired" do
@@ -48,15 +52,18 @@ describe "InterventionsGatewayApi" do
     let(:credential) { instance_double(Credential, expired?: false, logged_in?: true) }
     let(:sugar) { instance_double(Sugar) }
     let(:project_id) { "3434" }
+    let(:uuid) { SecureRandom.uuid }
 
     before do
+      uuid
       allow(Credential).to receive(:new).and_return(credential)
       allow(Sugar).to receive(:new).and_return(sugar)
     end
 
     def sugar_intervention_payload(payload)
       payload.merge({
-        event: 'intervention'
+        event: 'intervention',
+        uuid: uuid
       })
     end
 
@@ -120,16 +127,19 @@ describe "InterventionsGatewayApi" do
 
         it "should respond with a success message" do
           allow(sugar).to receive(:experiment)
+          allow(SecureRandom).to receive(:uuid).and_return(uuid)
           post '/subject_queues', json_payload, headers
           json_response_body = JSON.parse(last_response.body)
           expected_msg = {
             "status"=>"ok",
-            "message"=>"payload sent to user_id: 23"
+            "message"=>"payload sent to user_id: 23",
+            "uuid"=>uuid
           }
           expect(json_response_body).to eq(expected_msg)
         end
 
         it "should forward the request to sugar client" do
+          allow(SecureRandom).to receive(:uuid).and_return(uuid)
           sugar_payload = sugar_intervention_payload(
             payload.merge(event_type: 'subject_queue')
           )
@@ -156,6 +166,11 @@ describe "InterventionsGatewayApi" do
       it "should respond with unprocessable with extra payload information" do
         post '/messages', payload.merge(not_needed: "true").to_json, headers
         expect(last_response).to be_unprocessable
+        json_response_body = JSON.parse(last_response.body)
+        expected_msg = {
+          "errors" => ["message requires message, project_id and user_id attributes"]
+        }
+        expect(json_response_body).to eq(expected_msg)
       end
 
       %i(project_id message user_id).each do |attribute|
@@ -194,6 +209,7 @@ describe "InterventionsGatewayApi" do
         end
 
         it "should forward the request to sugar client" do
+          allow(SecureRandom).to receive(:uuid).and_return(uuid)
           sugar_payload = sugar_intervention_payload(
             payload.merge(event_type: 'message')
           )

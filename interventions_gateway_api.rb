@@ -29,7 +29,7 @@ class InterventionsGatewayApi < Sinatra::Base
     if request.post?
       setup_credentials
       unless valid_credentials
-        halt 401, 'invalid credentials, please check your token details'
+        error_response(401, 'invalid credentials, please check your token details')
       end
     end
   end
@@ -45,7 +45,10 @@ class InterventionsGatewayApi < Sinatra::Base
     valid_payload = SORTED_MESSAGE_KEYS == json.keys.sort
 
     unless valid_payload
-      halt 422, 'message requires message, project_id and user_id attributes'
+      error_response(
+        422,
+        'message requires message, project_id and user_id attributes'
+      )
     end
 
     message = Message.new(json)
@@ -67,7 +70,7 @@ class InterventionsGatewayApi < Sinatra::Base
     valid_payload = SORTED_SUBJECT_QUEUE_KEYS == json.keys.sort
 
     unless valid_payload
-      halt 422, 'subject_queues requires project_id, subject_ids, user_id and workflow_id attributes'
+      error_response(422, 'subject_queues requires project_id, subject_ids, user_id and workflow_id attributes')
     end
 
     subject_queue_req = SubjectQueue.new(json)
@@ -108,25 +111,33 @@ class InterventionsGatewayApi < Sinatra::Base
     credential.logged_in? && !credential.expired?
   end
 
-  def authorize(request)
-    if credential.accessible_project?(request.project_id)
+  def authorize(message)
+    if credential.accessible_project?(message.project_id)
       yield
-      success_response(request.user_id)
+      success_response(message.user_id, message.uuid)
     else
-      halt 403, 'You do not have access to this project'
+      error_response(403, 'You do not have access to this project')
     end
   end
 
-  def success_response(user_id)
+  def success_response(user_id, uuid)
     {
       status: "ok",
-      message: "payload sent to user_id: #{user_id}"
+      message: "payload sent to user_id: #{user_id}",
+      uuid: uuid
     }.to_json
+  end
+
+  def error_response(status_code, message)
+    halt status_code, { errors: [message] }.to_json
   end
 
   class Intervention < OpenStruct
     def initialize(params)
-      super(params.merge(INTERVENTION_EVENT))
+      uuid_added = params.merge(uuid: SecureRandom.uuid)
+      full_payload = uuid_added.merge(INTERVENTION_EVENT)
+
+      super(full_payload)
     end
   end
 
