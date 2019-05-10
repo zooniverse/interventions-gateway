@@ -52,15 +52,18 @@ describe "InterventionsGatewayApi" do
     let(:credential) { instance_double(Credential, expired?: false, logged_in?: true) }
     let(:sugar) { instance_double(Sugar) }
     let(:project_id) { "3434" }
+    let(:uuid) { SecureRandom.uuid }
 
     before do
+      uuid
       allow(Credential).to receive(:new).and_return(credential)
       allow(Sugar).to receive(:new).and_return(sugar)
     end
 
     def sugar_intervention_payload(payload)
       payload.merge({
-        event: 'intervention'
+        event: 'intervention',
+        uuid: uuid
       })
     end
 
@@ -123,7 +126,6 @@ describe "InterventionsGatewayApi" do
         end
 
         it "should respond with a success message" do
-          uuid = SecureRandom.uuid
           allow(sugar).to receive(:experiment)
           allow(SecureRandom).to receive(:uuid).and_return(uuid)
           post '/subject_queues', json_payload, headers
@@ -137,6 +139,7 @@ describe "InterventionsGatewayApi" do
         end
 
         it "should forward the request to sugar client" do
+          allow(SecureRandom).to receive(:uuid).and_return(uuid)
           sugar_payload = sugar_intervention_payload(
             payload.merge(event_type: 'subject_queue')
           )
@@ -206,6 +209,7 @@ describe "InterventionsGatewayApi" do
         end
 
         it "should forward the request to sugar client" do
+          allow(SecureRandom).to receive(:uuid).and_return(uuid)
           sugar_payload = sugar_intervention_payload(
             payload.merge(event_type: 'message')
           )

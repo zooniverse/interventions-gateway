@@ -111,20 +111,20 @@ class InterventionsGatewayApi < Sinatra::Base
     credential.logged_in? && !credential.expired?
   end
 
-  def authorize(request)
-    if credential.accessible_project?(request.project_id)
+  def authorize(message)
+    if credential.accessible_project?(message.project_id)
       yield
-      success_response(request.user_id)
+      success_response(message.user_id, message.uuid)
     else
       error_response(403, 'You do not have access to this project')
     end
   end
 
-  def success_response(user_id)
+  def success_response(user_id, uuid)
     {
       status: "ok",
       message: "payload sent to user_id: #{user_id}",
-      uuid: SecureRandom.uuid
+      uuid: uuid
     }.to_json
   end
 
@@ -134,7 +134,10 @@ class InterventionsGatewayApi < Sinatra::Base
 
   class Intervention < OpenStruct
     def initialize(params)
-      super(params.merge(INTERVENTION_EVENT))
+      uuid_added = params.merge(uuid: SecureRandom.uuid)
+      full_payload = uuid_added.merge(INTERVENTION_EVENT)
+
+      super(full_payload)
     end
   end
 
