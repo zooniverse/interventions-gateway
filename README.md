@@ -29,15 +29,37 @@ All of the APIs exposed by this gateway service require you to pass in a
 project ID.  If the project ID given does not match a project that you are an
 owner or collaborator on, you will get an HTTP 403 error status.
 
+The system will respond with a JSON payload outlining the state of the incoming request.
+
+On Error you will receive a JSON object with a list of errors
+
+```json
+{
+    "errors: [
+        "requires message, project_id and user_id attributes"
+    ]
+}
+```
+
+On Success you will receive a JSON object outlining the state of the request and a unique identifier (uuid) that will be tracked in any associated classification metadata resulting from the request.
+
+```json
+{
+    "status": "ok",
+    "message": "payload sent to user_id: 6",
+    "uuid": "2d931510-d99f-494a-8c67-87feb05e1594"
+}
+```
+
 This service exposes the following API endpoints:
 
 ### `POST /messages`
 
 This lets you send a message to a user, if they are currently online.
 
-A message will be shown to the user once they submit the classification they are currently working on.
+A message will be shown to the specified user once they submit the classification they are currently working on.
 
-A message will not be shown after posting to this message API if the user never submits another classification or they reload / close their browser.
+A message will not be shown to the specified user after posting to this message API if the user never submits another classification or they reload / close their browser.
 
 ```json
 {
@@ -46,6 +68,7 @@ A message will not be shown after posting to this message API if the user never 
     "message": "All of your contributions really help."
 }
 ```
+
 
 **Please note: the behaviour of how the interventions events are presented to the user is out of the control of this repo.** Please refer to  https://github.com/zooniverse/Panoptes-Front-End/ for specific details on intervention message handling.
 
