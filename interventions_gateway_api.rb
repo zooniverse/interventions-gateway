@@ -29,7 +29,7 @@ class InterventionsGatewayApi < Sinatra::Base
     if request.post?
       setup_credentials
       unless valid_credentials
-        halt 401, 'invalid credentials, please check your token details'
+        error_response(401, 'invalid credentials, please check your token details')
       end
     end
   end
@@ -70,7 +70,7 @@ class InterventionsGatewayApi < Sinatra::Base
     valid_payload = SORTED_SUBJECT_QUEUE_KEYS == json.keys.sort
 
     unless valid_payload
-      halt 422, 'subject_queues requires project_id, subject_ids, user_id and workflow_id attributes'
+      error_response(422, 'subject_queues requires project_id, subject_ids, user_id and workflow_id attributes')
     end
 
     subject_queue_req = SubjectQueue.new(json)
@@ -116,7 +116,7 @@ class InterventionsGatewayApi < Sinatra::Base
       yield
       success_response(request.user_id)
     else
-      halt 403, 'You do not have access to this project'
+      error_response(403, 'You do not have access to this project')
     end
   end
 
