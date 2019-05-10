@@ -45,7 +45,10 @@ class InterventionsGatewayApi < Sinatra::Base
     valid_payload = SORTED_MESSAGE_KEYS == json.keys.sort
 
     unless valid_payload
-      halt 422, 'message requires message, project_id and user_id attributes'
+      error_response(
+        422,
+        'message requires message, project_id and user_id attributes'
+      )
     end
 
     message = Message.new(json)
@@ -120,8 +123,13 @@ class InterventionsGatewayApi < Sinatra::Base
   def success_response(user_id)
     {
       status: "ok",
-      message: "payload sent to user_id: #{user_id}"
+      message: "payload sent to user_id: #{user_id}",
+      uuid: SecureRandom.uuid
     }.to_json
+  end
+
+  def error_response(status_code, message)
+    halt status_code, { errors: [message] }.to_json
   end
 
   class Intervention < OpenStruct

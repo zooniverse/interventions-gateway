@@ -119,12 +119,15 @@ describe "InterventionsGatewayApi" do
         end
 
         it "should respond with a success message" do
+          uuid = SecureRandom.uuid
           allow(sugar).to receive(:experiment)
+          allow(SecureRandom).to receive(:uuid).and_return(uuid)
           post '/subject_queues', json_payload, headers
           json_response_body = JSON.parse(last_response.body)
           expected_msg = {
             "status"=>"ok",
-            "message"=>"payload sent to user_id: 23"
+            "message"=>"payload sent to user_id: 23",
+            "uuid"=>uuid
           }
           expect(json_response_body).to eq(expected_msg)
         end
@@ -156,6 +159,11 @@ describe "InterventionsGatewayApi" do
       it "should respond with unprocessable with extra payload information" do
         post '/messages', payload.merge(not_needed: "true").to_json, headers
         expect(last_response).to be_unprocessable
+        json_response_body = JSON.parse(last_response.body)
+        expected_msg = {
+          "errors" => ["message requires message, project_id and user_id attributes"]
+        }
+        expect(json_response_body).to eq(expected_msg)
       end
 
       %i(project_id message user_id).each do |attribute|
