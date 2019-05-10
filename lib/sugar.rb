@@ -39,7 +39,5 @@ class Sugar
       req.headers['Content-Type'] = 'application/json'
       yield req if block_given?
     end
-  rescue URI::BadURIError
-    ::Rails.logger.warn 'Sugar configuration is not valid'
   end
 end
