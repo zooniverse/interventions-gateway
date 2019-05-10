@@ -63,7 +63,7 @@ class Credential
   end
 
   def expires_at
-    @expires_at ||= Time.at(jwt_payload['exp'])
+    @expires_at ||= Time.at(jwt_payload['exp']).utc
   end
 
   class JWTDecoder
