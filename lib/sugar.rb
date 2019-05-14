@@ -27,6 +27,7 @@ class Sugar
 
   def connection
     @connection ||= Faraday.new(host) do |faraday|
+      faraday.use Faraday::Response::RaiseError
       faraday.response :json, content_type: /\bjson$/
       faraday.basic_auth username, password
       faraday.adapter Faraday.default_adapter
