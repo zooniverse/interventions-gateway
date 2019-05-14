@@ -1,0 +1,69 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: interventions-gateway-staging
+  labels:
+    app: interventions-gateway-staging
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: interventions-gateway-staging
+  strategy:
+      type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: interventions-gateway-staging
+    spec:
+      containers:
+        - name: interventions-gateway
+          image: zooniverse/interventions-gateway:__IMAGE_TAG__
+          imagePullPolicy: Always
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 2
+            periodSeconds: 10
+          ports:
+            - containerPort: 80
+          env:
+            - name: RACK_ENV
+              valueFrom:
+                secretKeyRef:
+                  name: interventions-gateway-staging
+                  key: rack_env
+            - name: ROLLBAR_ACCESS_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: interventions-gateway-staging
+                  key: rollbar_access_token
+            - name: SUGAR_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: interventions-gateway-staging
+                  key: sugar_host
+            - name: SUGAR_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: interventions-gateway-staging
+                  key: sugar_password
+            - name: SUGAR_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: interventions-gateway-staging
+                  key: sugar_username
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: interventions-gateway-staging
+spec:
+  selector:
+    app: interventions-gateway-staging
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: NodePort

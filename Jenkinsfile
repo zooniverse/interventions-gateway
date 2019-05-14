@@ -1,46 +1,46 @@
 #!groovy
 
-node {
-    checkout scm
+pipeline {
+  agent none
 
-    def dockerRepoName = 'zooniverse/interventions-gateway'
-    def dockerImageName = "${dockerRepoName}:${BRANCH_NAME}"
-    def newImage = null
+  options {
+    disableConcurrentBuilds()
+  }
 
+  stages {
     stage('Build Docker image') {
-        newImage = docker.build(dockerImageName)
-        newImage.push()
+      agent any
+      steps {
+        script {
+          def dockerRepoName = 'zooniverse/interventions-gateway'
+          def dockerImageName = "${dockerRepoName}:${BRANCH_NAME}"
+          def newImage = docker.build(dockerImageName)
+          newImage.push()
+          newImage.push('${GIT_COMMIT}')
+
+          if (BRANCH_NAME == 'master') {
+            stage('Update latest tag') {
+              newImage.push('latest')
+            }
+          }
+        }
+      }
     }
 
-     if (BRANCH_NAME == 'master') {
-         stage('Update latest tag') {
-             newImage.push('latest')
-         }
+    stage('Deploy staging to Kubernetes') {
+      when { branch 'master' }
+      agent any
+      steps {
+        sh "sed 's/__IMAGE_TAG__/${GIT_COMMIT}/g' kubernetes/deployment-staging.tmpl | kubectl apply --record -f -"
+      }
+    }
 
-         stage('Deploy to Swarm') {
-             sh """
-                 cd "/var/jenkins_home/jobs/Zooniverse GitHub/jobs/operations/branches/master/workspace" && \
-                 ./hermes_wrapper.sh exec swarm19a -- \
-                     docker stack deploy --prune \
-                     -c /opt/infrastructure/stacks/interventions-gateway-staging.yml \
-                     interventions-gateway-staging
-             """
-         }
-     }
-
-     if (BRANCH_NAME == 'production') {
-         stage('Update production tag') {
-             newImage.push('production')
-         }
-
-         stage('Deploy to Swarm') {
-             sh """
-                 cd "/var/jenkins_home/jobs/Zooniverse GitHub/jobs/operations/branches/master/workspace" && \
-                 ./hermes_wrapper.sh exec swarm19a -- \
-                     docker stack deploy --prune \
-                     -c /opt/infrastructure/stacks/interventions-gateway.yml \
-                     interventions-gateway
-             """
-         }
-     }
+    stage('Deploy production to Kubernetes') {
+      when { tag 'production-release' }
+      agent any
+      steps {
+        sh "sed 's/__IMAGE_TAG__/${GIT_COMMIT}/g' kubernetes/deployment-production.tmpl | kubectl apply --record -f -"
+      }
+    }
+  }
 }
