@@ -14,4 +14,8 @@ module Env
   def self.rollbar_token
     ENV.fetch('ROLLBAR_ACCESS_TOKEN', '')
   end
+
+  def self.commit_id
+    @commit_id ||= File.read('public/commit_id.txt').strip
+  end
 end
