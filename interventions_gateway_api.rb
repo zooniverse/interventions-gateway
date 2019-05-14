@@ -82,7 +82,7 @@ class InterventionsGatewayApi < Sinatra::Base
 
   # add a default health check end point
   get '/' do
-    {status: 'ok', version: VERSION}.to_json
+    {status: 'ok', version: VERSION, commit_id: Env.commit_id}.to_json
   end
 
   private

@@ -3,8 +3,9 @@ require 'spec_helper.rb'
 describe "InterventionsGatewayApi" do
   describe "/" do
     it "should return a health check response" do
+      allow(Env).to receive(:commit_id).and_return("test")
       get '/'
-      response = {"status"=>"ok", "version"=>VERSION}
+      response = {"status"=>"ok", "version"=>VERSION, commit_id: "test"}
       expect(last_response.body).to eq(response.to_json)
     end
 

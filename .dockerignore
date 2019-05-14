@@ -3,4 +3,4 @@
 .bundle
 spec
 log/*
-.git/
+public/commit_id.txt
