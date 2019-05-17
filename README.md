@@ -36,7 +36,7 @@ On Error you will receive a JSON object with a list of errors
 ```json
 {
     "errors: [
-        "requires message, project_id and user_id attributes"
+        'requires message, project_id and user_id attributes'
     ]
 }
 ```
