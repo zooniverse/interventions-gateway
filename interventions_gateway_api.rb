@@ -10,6 +10,7 @@ require_relative 'lib/env'
 require 'pry' if Env.local?
 
 SORTED_MESSAGE_KEYS = %w(message project_id user_id).freeze
+OPTIONAL_MESSAGE_KEYS = %w(workflow_id).freeze
 SORTED_SUBJECT_QUEUE_KEYS = %w(project_id subject_ids user_id workflow_id).freeze
 INTERVENTION_EVENT = { event: 'intervention' }.freeze
 MESSAGE_EVENT_TYPE = { event_type: 'message' }.freeze
@@ -42,7 +43,12 @@ class InterventionsGatewayApi < Sinatra::Base
   post '/messages' do
     json = JSON.parse(request.body.read.to_s)
 
-    valid_payload = SORTED_MESSAGE_KEYS == json.keys.sort
+    payload_attributes = json.keys.sort.dup
+    non_optional_attributes = payload_attributes - OPTIONAL_MESSAGE_KEYS
+    has_required_attributes = (SORTED_MESSAGE_KEYS - non_optional_attributes).empty?
+    has_unknown_attributes = !(non_optional_attributes - SORTED_MESSAGE_KEYS).empty?
+
+    valid_payload = has_required_attributes && !has_unknown_attributes
 
     unless valid_payload
       error_response(

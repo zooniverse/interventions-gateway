@@ -156,6 +156,7 @@ describe "InterventionsGatewayApi" do
         {
           "project_id": project_id,
           "user_id": "6",
+          "workflow_id": "9",
           "message": "All of your contributions really help."
         }
       end
@@ -217,6 +218,32 @@ describe "InterventionsGatewayApi" do
           expect(sugar).to receive(:experiment).with(sugar_payload)
           post '/messages', json_payload, headers
           expect(last_response).to be_ok
+        end
+
+        describe "without a workflow_id attribute" do
+          let(:payload) do
+            {
+              "project_id": project_id,
+              "user_id": "6",
+              "message": "All of your contributions really help."
+            }
+          end
+
+          it "should allow a message without a workflow_id" do
+            allow(sugar).to receive(:experiment)
+            post '/messages', json_payload, headers
+            expect(last_response).to be_ok
+          end
+
+          it "should forward the request to sugar client" do
+            allow(SecureRandom).to receive(:uuid).and_return(uuid)
+            sugar_payload = sugar_intervention_payload(
+              payload.merge(event_type: 'message')
+            )
+            expect(sugar).to receive(:experiment).with(sugar_payload)
+            post '/messages', json_payload, headers
+            expect(last_response).to be_ok
+          end
         end
       end
     end
