@@ -2,7 +2,8 @@ require 'panoptes-client'
 
 # Wrapper around the authentication token given by API consumers.
 class Credential
-  OWNER_ROLES = %w[owner collaborator].freeze
+  # only authenticated users with these roles can post messages
+  ALLOWED_ROLES = %w[owner collaborator researcher].freeze
 
   attr_reader :token
 
@@ -31,7 +32,7 @@ class Credential
       '/projects',
       {
         id: id,
-        current_user_roles: OWNER_ROLES,
+        current_user_roles: ALLOWED_ROLES,
         cards: true
       }
     )
