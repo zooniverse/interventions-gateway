@@ -69,6 +69,7 @@ A message will not be shown to the specified user after posting to this message 
 }
 ```
 
+Required payload attributes are above. If you wish to only show the message on a particular workflow then include the `workflow_id` attribute as well.
 
 **Please note: the behaviour of how the interventions events are presented to the user is out of the control of this repo.** Please refer to  https://github.com/zooniverse/Panoptes-Front-End/ for specific details on intervention message handling.
 
