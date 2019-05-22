@@ -3,7 +3,7 @@ require 'panoptes-client'
 # Wrapper around the authentication token given by API consumers.
 class Credential
   # only authenticated users with these roles can post messages
-  ALLOWED_ROLES = %w[owner collaborator researcher].freeze
+  ALLOWED_ROLES = %w[owner collaborator scientist].join(',').freeze
 
   attr_reader :token
 
@@ -28,14 +28,12 @@ class Credential
   end
 
   def accessible_project?(id)
-    api_response = client.panoptes.paginate(
-      '/projects',
-      {
-        id: id,
-        current_user_roles: ALLOWED_ROLES,
-        cards: true
-      }
-    )
+    filter_payload = {
+      id: id,
+      current_user_roles: ALLOWED_ROLES,
+      cards: true
+    }
+    api_response = client.panoptes.paginate('/projects', filter_payload)
 
     if api_response["projects"].empty?
       false
