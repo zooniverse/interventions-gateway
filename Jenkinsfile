@@ -31,7 +31,7 @@ pipeline {
       when { branch 'master' }
       agent any
       steps {
-        sh "sed 's/__IMAGE_TAG__/${GIT_COMMIT}/g' kubernetes/deployment-staging.tmpl | kubectl apply --record -f -"
+        sh "sed 's/__IMAGE_TAG__/${GIT_COMMIT}/g' kubernetes/deployment-staging.tmpl | kubectl --context azure apply --record -f -"
       }
     }
 
@@ -39,7 +39,7 @@ pipeline {
       when { tag 'production-release' }
       agent any
       steps {
-        sh "sed 's/__IMAGE_TAG__/${GIT_COMMIT}/g' kubernetes/deployment-production.tmpl | kubectl apply --record -f -"
+        sh "sed 's/__IMAGE_TAG__/${GIT_COMMIT}/g' kubernetes/deployment-production.tmpl | kubectl --context azure apply --record -f -"
       }
     }
   }
