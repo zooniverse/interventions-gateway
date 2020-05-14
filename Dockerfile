@@ -19,4 +19,4 @@ ADD ./docker/supervisord.conf /etc/supervisor/conf.d/interventions.conf
 RUN (git log --format="%H" -n 1 > public/commit_id.txt)
 
 EXPOSE 80
-ENTRYPOINT /app/docker/start.sh
+CMD ["/app/docker/start.sh"]
