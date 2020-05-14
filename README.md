@@ -117,6 +117,7 @@ To add new features
 Testing with docker-compose
 1. `docker-compose build`
 0. `docker-compose up`
+0. `docker-compose run -T --rm gateway_api bundle exec rspec`
 
 Manually running the webserver
 1. `bundle exec puma -C docker/puma.rb`
