@@ -74,3 +74,16 @@ spec:
       port: 80
       targetPort: 80
   type: NodePort
+---
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: interventions-gateway-production
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: interventions-gateway-production
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 80
