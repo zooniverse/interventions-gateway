@@ -5,6 +5,7 @@ metadata:
   labels:
     app: interventions-gateway-staging
 spec:
+  replicas: 1
   selector:
     matchLabels:
       app: interventions-gateway-staging
@@ -73,16 +74,3 @@ spec:
       port: 80
       targetPort: 80
   type: NodePort
----
-apiVersion: autoscaling/v1
-kind: HorizontalPodAutoscaler
-metadata:
-  name: interventions-gateway-staging
-spec:
-  scaleTargetRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: interventions-gateway-staging
-  minReplicas: 1
-  maxReplicas: 2
-  targetCPUUtilizationPercentage: 80
