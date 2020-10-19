@@ -5,7 +5,6 @@ metadata:
   labels:
     app: interventions-gateway-production
 spec:
-  replicas: 2
   selector:
     matchLabels:
       app: interventions-gateway-production
@@ -23,7 +22,7 @@ spec:
           resources:
                 requests:
                   memory: "100Mi"
-                  cpu: "10m"
+                  cpu: "250m"
                 limits:
                   memory: "100Mi"
                   cpu: "500m"
@@ -74,3 +73,16 @@ spec:
       port: 80
       targetPort: 80
   type: NodePort
+---
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: interventions-gateway-production
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: interventions-gateway-production
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 80
