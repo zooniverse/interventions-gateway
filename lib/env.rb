@@ -16,6 +16,6 @@ module Env
   end
 
   def self.commit_id
-    @commit_id ||= File.read('public/commit_id.txt').strip
+    ENV.fetch('REVISION', '')
   end
 end
