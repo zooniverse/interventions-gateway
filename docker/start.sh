@@ -8,4 +8,4 @@ then
     source /run/secrets/environment
 fi
 
-exec /usr/bin/supervisord -c /etc/supervisor/supervisord.conf
+exec bundle exec puma -C docker/puma.rb
