@@ -1,9 +1,13 @@
-gateway_api:
-  dockerfile: Dockerfile.dev
-  build: .
-  volumes:
-    - ./:/app
-  ports:
-    - "3000:3000"
-  environment:
-    RACK_ENV: development
+version: '3'
+services:
+  gateway_api:
+    build:
+      context: .
+      args:
+        RACK_ENV: development
+    volumes:
+      - ./:/app
+    ports:
+      - "3000:3000"
+    environment:
+      RACK_ENV: development
