@@ -2,5 +2,4 @@
 /log/*.log
 /tmp
 *.swp
-public/commit_id.txt
 .ruby-*
