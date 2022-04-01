@@ -1,0 +1,43 @@
+name: Deploy to Staging
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  build_and_push_image:
+    name: Build and Push Image
+    uses: zooniverse/ci-cd/.github/workflows/build_and_push_image.yaml@optional-build-args
+    with:
+      repo_name: interventions-gateway
+      commit_id: ${{ github.sha }}
+      latest: true
+      build-args: "REVISION=${{ github.sha }}"
+
+  deploy_staging:
+    name: Deploy to Staging
+    uses: zooniverse/ci-cd/.github/workflows/deploy_app.yaml@main
+    needs: build_and_push_image
+    with:
+      app_name: interventions-gateway
+      repo_name: interventions-gateway
+      commit_id: ${{ github.sha }}
+      environment: staging
+    secrets:
+      creds: ${{ secrets.AZURE_AKS }}
+
+  slack_notification:
+    name: Slack notification
+    uses: zooniverse/ci-cd/.github/workflows/slack_notification.yaml@main
+    needs: deploy_staging
+    if: always()
+    with:
+      commit_id: ${{ github.sha }}
+      job_name: Deploy to Staging / deploy_app
+      status: ${{ needs.deploy_staging.result }}
+      title: "interventions-gateway Staging deploy & migration complete"
+      title_link: "https://caesar-staging.zooniverse.org"
+    secrets:
+      slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
