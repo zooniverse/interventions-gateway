@@ -14,7 +14,7 @@ jobs:
       repo_name: interventions-gateway
       commit_id: ${{ github.sha }}
       latest: true
-      build-args: "REVISION=${{ github.sha }}"
+      build_args: "REVISION=${{ github.sha }}"
 
   deploy_staging:
     name: Deploy to Staging
