@@ -9,7 +9,7 @@ on:
 jobs:
   build_and_push_image:
     name: Build and Push Image
-    uses: zooniverse/ci-cd/.github/workflows/build_and_push_image.yaml@optional-build-args
+    uses: zooniverse/ci-cd/.github/workflows/build_and_push_image.yaml@main
     with:
       repo_name: interventions-gateway
       commit_id: ${{ github.sha }}
