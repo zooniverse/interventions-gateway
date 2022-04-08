@@ -38,6 +38,6 @@ jobs:
       job_name: Deploy to Staging / deploy_app
       status: ${{ needs.deploy_staging.result }}
       title: "interventions-gateway Staging deploy & migration complete"
-      title_link: "https://caesar-staging.zooniverse.org"
+      title_link: "https://interventions-gateway-staging.zooniverse.org"
     secrets:
       slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
