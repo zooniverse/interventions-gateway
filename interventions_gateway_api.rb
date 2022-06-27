@@ -93,11 +93,11 @@ class InterventionsGatewayApi < Sinatra::Base
 
   # sinkhole 404 & 400 responses
   error Sinatra::NotFound do
-    [404, json({ message: 'Not Found' })]
+    error_response(404, 'Not Found')
   end
 
   error Sinatra::BadRequest do
-    [404, json({ message: 'Bad Request' })]
+    error_response(400, 'Bad Request')
   end
 
   private
