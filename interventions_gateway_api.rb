@@ -91,6 +91,15 @@ class InterventionsGatewayApi < Sinatra::Base
     {status: 'ok', version: VERSION, commit_id: Env.commit_id}.to_json
   end
 
+  # sinkhole 404 & 400 responses
+  error Sinatra::NotFound do
+    [404, json({ message: 'Not Found' })]
+  end
+
+  error Sinatra::BadRequest do
+    [404, json({ message: 'Bad Request' })]
+  end
+
   private
 
   def sugar_client
